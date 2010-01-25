@@ -12,22 +12,73 @@ Copyright (c) 2010 24veces.com. All rights reserved.
 
 import urllib2
 import re
+import sys
+import getopt
 from BeautifulSoup import BeautifulSoup
 baseUrl = "http://www.caribbeancinemas.com"
 
+schema = """
+CREATE TABLE IF NOT EXISTS `theater` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` text,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-def main():
+CREATE TABLE IF NOT EXISTS `movie` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` text,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `schedule` (
+  `id` int(11) NOT NULL auto_increment,
+  `movie_id` int(11) default NULL,
+  `theater_id` int(11) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `schedule_hour` (
+  `id` int(11) NOT NULL auto_increment,
+  `day_M` varchar(1) default '0',
+  `day_T` varchar(1) default '0',
+  `day_W` varchar(1) default '0',
+  `day_Th` varchar(1) default '0',
+  `day_F` varchar(1) default '0',
+  `day_Sa` varchar(1) default '0',
+  `day_Su` varchar(1) default '0',
+  `time` varchar(10) default NULL,
+  `schedule_id` int(11) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+"""
+
+def main(argv):
+	
+	try:
+		opts, args = getopt.getopt(argv, "tsc", ["text", "sql", "create"])
+	except getopt.GetoptError:
+		print "Did not understand arguments\n"
+		sys.exit(2)
+	
+	output = "sql"
+	for opt, arg in opts:
+		if opt in ("-t", "--text"):
+			output = "text"
+		elif opt in ("-s", "--sql"):
+			output = "sql"
+		elif opt in ("-c", "--create"):
+			create = 1
 	
 	allData = getAllData()
 	
 	for t in allData:
-		print "********** " + t['theaterName'] + " **********"
+		text = "********** " + t['theaterName'] + " **********\n"
 		
 		sql = "INSERT INTO theater (name) VALUES ('" + t['theaterName'] + "');\n"
 		sql += "SET @theater_id := LAST_INSERT_ID();\n"
 				
 		for x in t['data']:
-			print x['movieName']
+			text += x['movieName'] + "\n"
 			
 			sql += "INSERT INTO movie (name) VALUES ('" + x['movieName'] + "');\n"
 			sql += "SET @movie_id := LAST_INSERT_ID();\n"
@@ -36,27 +87,31 @@ def main():
 			
 			p = re.compile(r',')
 			
-			print 'MON-FRI: ' + x['showtimes'][0]
-			
+			text += 'MON-FRI: ' + x['showtimes'][0]	+ "\n"
 			for time in p.split(x['showtimes'][0]):
 				sql += "INSERT INTO schedule_hour (schedule_id, day_M, day_T, day_W, day_Th, day_F, day_Sa, day_Su, time) "
 				sql += " VALUES (@schedule_id,'1','1','1','1','1','0','0','" + time.strip() + "');\n"
 			
-			print 'SAT: ' + x['showtimes'][1]
+			text += 'SAT: ' + x['showtimes'][1]	+ "\n"
 			for time in p.split(x['showtimes'][1]):
 				sql += "INSERT INTO schedule_hour (schedule_id, day_M, day_T, day_W, day_Th, day_F, day_Sa, day_Su, time) "
 				sql += " VALUES (@schedule_id,'0','0','0','0','0','1','0','" + time.strip() + "');\n"
 
-			print 'SUN & HOL: ' + x['showtimes'][2]
+			text += 'SUN & HOL: ' + x['showtimes'][2]	+ "\n"
 			for time in p.split(x['showtimes'][2]):
 				sql += "INSERT INTO schedule_hour (schedule_id, day_M, day_T, day_W, day_Th, day_F, day_Sa, day_Su, time) "
 				sql += " VALUES (@schedule_id,'0','0','0','0','0','0','1','" + time.strip() + "');\n"
 
-			print "============================="
-		print "\n\n"
+			text += "=============================\n"
+		text += "\n\n\n"
 		
-		print "SQL: \n"
-		print sql
+		if output == 'sql':
+			if create == 1:
+				print schema
+			print sql.encode('ascii', 'xmlcharrefreplace')
+			
+		else:
+			print text.encode('ascii', 'xmlcharrefreplace')
 		
 
 def getAllData():
@@ -106,7 +161,9 @@ def getTheaterList():
 	for t in tNames:
 		theaters.append({'name': t, 'url': baseUrl + '/' + tUrls[i]})
 		i = i+1
-		#break
+		
+		if i > 2:
+			break
 	
 	return theaters
 
@@ -141,4 +198,4 @@ def getPage(url):
 		
 
 if __name__ == '__main__':
-	main()
+	main(sys.argv[1:])
