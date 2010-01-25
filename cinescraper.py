@@ -11,6 +11,7 @@ Copyright (c) 2010 24veces.com. All rights reserved.
 """
 
 import urllib2
+import re
 from BeautifulSoup import BeautifulSoup
 baseUrl = "http://www.caribbeancinemas.com"
 
@@ -21,15 +22,42 @@ def main():
 	
 	for t in allData:
 		print "********** " + t['theaterName'] + " **********"
-	
+		
+		sql = "INSERT INTO theater (name) VALUES ('" + t['theaterName'] + "');\n"
+		sql += "SET @theater_id := LAST_INSERT_ID();\n"
+				
 		for x in t['data']:
-			print x['movieName']	
+			print x['movieName']
+			
+			sql += "INSERT INTO movie (name) VALUES ('" + x['movieName'] + "');\n"
+			sql += "SET @movie_id := LAST_INSERT_ID();\n"
+			sql += "INSERT INTO schedule (movie_id, theater_id) VALUES (@movie_id,@theater_id);\n"
+			sql += "SET @schedule_id := LAST_INSERT_ID();\n"
+			
+			p = re.compile(r',')
+			
 			print 'MON-FRI: ' + x['showtimes'][0]
+			
+			for time in p.split(x['showtimes'][0]):
+				sql += "INSERT INTO schedule_hour (schedule_id, day_M, day_T, day_W, day_Th, day_F, day_Sa, day_Su, time) "
+				sql += " VALUES (@schedule_id,'1','1','1','1','1','0','0','" + time.strip() + "');\n"
+			
 			print 'SAT: ' + x['showtimes'][1]
+			for time in p.split(x['showtimes'][1]):
+				sql += "INSERT INTO schedule_hour (schedule_id, day_M, day_T, day_W, day_Th, day_F, day_Sa, day_Su, time) "
+				sql += " VALUES (@schedule_id,'0','0','0','0','0','1','0','" + time.strip() + "');\n"
+
 			print 'SUN & HOL: ' + x['showtimes'][2]
+			for time in p.split(x['showtimes'][2]):
+				sql += "INSERT INTO schedule_hour (schedule_id, day_M, day_T, day_W, day_Th, day_F, day_Sa, day_Su, time) "
+				sql += " VALUES (@schedule_id,'0','0','0','0','0','0','1','" + time.strip() + "');\n"
+
 			print "============================="
 		print "\n\n"
-
+		
+		print "SQL: \n"
+		print sql
+		
 
 def getAllData():
 	theaters = getTheaterList()
@@ -78,6 +106,7 @@ def getTheaterList():
 	for t in tNames:
 		theaters.append({'name': t, 'url': baseUrl + '/' + tUrls[i]})
 		i = i+1
+		break
 	
 	return theaters
 
