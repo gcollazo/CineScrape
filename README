@@ -1,3 +1,9 @@
 CineScrape
 
-A very rudimentary script to scrape http://caribbeancinemas.com
+A very rudimentary script to scrape http://caribbeancinemas.com. The script produces text, sql and sql with db schema and data.
+
+Argument options
+
+--text produces text output of data
+--sql produces sql output of data
+--create produces sql db schema with data
