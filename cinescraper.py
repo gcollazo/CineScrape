@@ -106,7 +106,7 @@ def getTheaterList():
 	for t in tNames:
 		theaters.append({'name': t, 'url': baseUrl + '/' + tUrls[i]})
 		i = i+1
-		break
+		#break
 	
 	return theaters
 
