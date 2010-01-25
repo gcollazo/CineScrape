@@ -102,7 +102,11 @@ def getMovieList():
 
 
 def getPage(url):
-	req = urllib2.Request(url)
+	
+	userAgent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
+	headers = { 'User-Agent' : userAgent }
+	
+	req = urllib2.Request(url, '', headers)
 	response = urllib2.urlopen(req)
 	return response.read()
 		
