@@ -85,10 +85,12 @@ delimiter ;
 
 """
 
+quiet = 0
+
 def main(argv):
 	
 	try:
-		opts, args = getopt.getopt(argv, "tscn:h", ["text", "sql", "create"])
+		opts, args = getopt.getopt(argv, "tscqn:h", ["text", "sql", "create", "quiet"])
 	except getopt.GetoptError:
 		print "ERROR: Did not understand arguments\n"
 		usage()
@@ -97,6 +99,7 @@ def main(argv):
 	output = "sql"
 	max_theaters = 0
 	create = 0
+	global quiet
 	
 	for opt, arg in opts:
 		if opt in ("-t", "--text"):
@@ -107,10 +110,13 @@ def main(argv):
 			create = 1
 		elif opt in ("-n"):
 			max_theaters = int(arg)
+		elif opt in ("-q", "--quiet"):
+			quiet = 1
 		elif opt in ("-h"):
 			usage()
 			sys.exit(0)
-			
+	
+	debug("Initializing...\n")
 	
 	allData = getAllData(max_theaters)
 	
@@ -168,6 +174,10 @@ def usage():
 	print "\t-n limit:\tOutput from n theaters only"
 	print "\t-h:\t\tThis message"
 
+def debug(data):
+	if int(quiet) == 0:
+		print >> sys.stderr, data,
+
 def timeTo24Hrs(time12):
 	stripped_time = time12.strip()
 	
@@ -195,8 +205,15 @@ def timeTo24Hrs(time12):
 def getAllData(max_theaters):
 	theaters = getTheaterList(max_theaters)
 	result = []
+
+	i = 1
+
 	for t in theaters:
+		debug("Getting theater data [" + str(i) + "/" + str(len(theaters)) + "]\r") 	
+		i += 1	
 		result.append({'theaterName': t['name'], 'data':getTheaterData(t['url'])})
+		
+	debug("\n")
 	return result
 
 
@@ -225,6 +242,7 @@ def getTheaterData(url):
 
 
 def getTheaterList(max_theaters):
+	debug("Getting Theater List...\n")		
 	res = getPage(baseUrl)
 
 	soup = BeautifulSoup(res)
