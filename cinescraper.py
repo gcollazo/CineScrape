@@ -171,6 +171,7 @@ def usage():
 	print "\t-c, --create:\tOutput schema"
 	print "\t-s, --sql:\tOutput in SQL for piping to mysql"
 	print "\t-t, --text:\tOutput in human readable"
+	print "\t-q, --quiet:\tSuppress Output"
 	print "\t-n limit:\tOutput from n theaters only"
 	print "\t-h:\t\tThis message"
 
