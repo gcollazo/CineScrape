@@ -25,9 +25,9 @@ Usage:
 
 Argument options:
 
--t|--text 		produces text output of data, cannot be used with -s
--s|--sql 			produces sql output of data (default), cannot be used with -t
--c|--create 	produces sql db schema with data
--n number 		outputs only the data for the first 'number' theaters (default: 0 -> get all data)
--q|--quiet		suppresses status output
--h 						usage message
+-t|--text     produces text output of data, cannot be used with -s
+-s|--sql      produces sql output of data (default), cannot be used with -t
+-c|--create   produces sql db schema with data
+-n number     outputs only the data for the first 'number' theaters (default: 0 -> get all data)
+-q|--quiet    suppresses status output
+-h            usage message
