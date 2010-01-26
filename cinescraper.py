@@ -73,6 +73,12 @@ IF @num_repeats > 0 THEN ITERATE repeat_label; END IF;
 LEAVE repeat_label;
 END LOOP repeat_label;
 
+DROP TABLE IF EXISTS tmp_sc_hr;
+CREATE TEMPORARY TABLE tmp_sc_hr LIKE schedule_hour;
+INSERT INTO tmp_sc_hr (SELECT NULL as id, sum(day_M) as day_M, sum(day_T) as day_T, sum(day_W) as day_W, sum(day_Th) as day_Th, sum(day_F) as day_F, sum(day_Sa) as day_Sa, sum(day_Su) as day_Su, time, schedule_id FROM schedule_hour GROUP BY schedule_id, time);
+TRUNCATE TABLE schedule_hour;
+INSERT INTO schedule_hour (SELECT * FROM tmp_sc_hr);
+
 END//
 
 delimiter ;
@@ -108,7 +114,7 @@ def main(argv):
 	
 	allData = getAllData(max_theaters)
 	
-	sql = "DELETE FROM movie; DELETE FROM schedule; DELETE FROM schedule_hour; DELETE FROM theater;"
+	sql = "TRUNCATE TABLE movie; TRUNCATE TABLE schedule; TRUNCATE TABLE schedule_hour; TRUNCATE TABLE theater;\n\n"
 	
 	for t in allData:
 		text = "********** " + t['theaterName'] + " **********\n"
@@ -144,15 +150,14 @@ def main(argv):
 			text += "=============================\n"
 		text += "\n\n\n"
 		
-		sql += "CALL cleanup_movies;\n"
+	sql += "CALL cleanup_movies;\n"
 		
-		if output == 'sql':
-			if create == 1:
-				print schema
-			print sql.encode('ascii', 'xmlcharrefreplace')
-			
-		else:
-			print text.encode('ascii', 'xmlcharrefreplace')
+	if output == 'sql':
+		if create == 1:
+			print schema
+		print sql.encode('ascii', 'xmlcharrefreplace')
+	else:
+		print text.encode('ascii', 'xmlcharrefreplace')
 
 def usage():
 	print "usage: " + sys.argv[0] + " [-s|--sql] [-t|--text] [-c|--create] [-n limit]\n"
@@ -232,7 +237,7 @@ def getTheaterList(max_theaters):
 
 	i = 0
 	for t in tNames:
-		theaters.append({'name': t, 'url': baseUrl + '/' + tUrls[i]})
+		theaters.append({'name': t.strip(), 'url': baseUrl + '/' + tUrls[i]})
 		i = i+1
 		
 		if max_theaters > 0:
