@@ -209,7 +209,9 @@ def getAllData(max_theaters):
 	i = 1
 
 	for t in theaters:
-		debug("Getting theater data [" + str(i) + "/" + str(len(theaters)) + "]\r") 	
+		percent = float(i)/len(theaters)*100;
+		
+		debug("Getting theater data [" + str(i) + "/" + str(len(theaters)) + "] (" + str(percent) + "%)\r") 	
 		i += 1	
 		result.append({'theaterName': t['name'], 'data':getTheaterData(t['url'])})
 		
