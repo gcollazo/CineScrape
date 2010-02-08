@@ -236,10 +236,8 @@ def getTheaterData(url):
 		times.append(t.nextSibling.next)
 	
 	result = []
-	i = 0
-	for n in movieNames:
-		result.append({'movieName':n, 'showtimes':[times[i*3], times[i*3+1], times[i*3+1]] })
-		i = i+1
+	for index, n in enumerate(movieNames):
+		result.append({'movieName':n, 'showtimes':[times[index*3], times[index*3+1], times[index*3+1]] })
 	
 	return result
 
@@ -256,13 +254,11 @@ def getTheaterList(max_theaters):
 
 	theaters = []
 
-	i = 0
-	for t in tNames:
-		theaters.append({'name': t.strip(), 'url': baseUrl + '/' + tUrls[i]})
-		i = i+1
+	for index, t in enumerate(tNames):
+		theaters.append({'name': t.strip(), 'url': baseUrl + '/' + tUrls[index]})
 		
 		if max_theaters > 0:
-			if i >= max_theaters:
+			if index >= max_theaters:
 				break
 
 	return theaters
@@ -279,10 +275,8 @@ def getMovieList():
 	
 	movies = []
 	
-	i = 0
-	for t in titles:
-		movies.append({'title': t, 'url': baseUrl + "/" + mUrls[i]})
-		i = i+1
+	for index, t in enumerate(titles):
+		movies.append({'title': t, 'url': baseUrl + "/" + mUrls[index]})
 		
 	return movies
 
