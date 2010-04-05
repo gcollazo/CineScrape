@@ -51,6 +51,8 @@ CREATE TABLE IF NOT EXISTS `schedule_hour` (
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE OR REPLACE VIEW schedule_hour_v AS (SELECT id, ((day_Sa<<7)+(day_F<<6)+(day_Th<<5)+(day_W<<4)+(day_T<<3)+(day_M<<2)+(day_Su<<1)) AS days, time, schedule_id FROM schedule_hour)
+
 delimiter //
 
 DROP PROCEDURE IF EXISTS cleanup_movies//
