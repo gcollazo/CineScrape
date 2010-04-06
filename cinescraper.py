@@ -123,9 +123,10 @@ def main(argv):
 	allData = getAllData(max_theaters)
 	
 	sql = "TRUNCATE TABLE movie; TRUNCATE TABLE schedule; TRUNCATE TABLE schedule_hour; TRUNCATE TABLE theater;\n\n"
+	text = ""
 	
 	for t in allData:
-		text = "********** " + t['theaterName'] + " **********\n"
+		text += "********** " + t['theaterName'] + " **********\n"
 		
 		sql += "INSERT INTO theater (name) VALUES ('" + t['theaterName'].replace('\'','\\\'') + "');\n"
 		sql += "SET @theater_id := LAST_INSERT_ID();\n"
