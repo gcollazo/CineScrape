@@ -36,12 +36,16 @@ db_host = ''
 db_socket = ''
 
 def main():
-	print insertToDb(getAllData())
+	print updateDb(getAllData())
 
 
-def insertToDb(data):
+def updateDb(data):
 	conn = MySQLdb.connect(user = db_user, passwd = db_passwd, db = db_name, unix_socket = db_socket)
 	cursor = conn.cursor()
+	
+	# Truncate tables
+	cursor.execute("TRUNCATE TABLE `movies`")
+	cursor.execute("TRUNCATE TABLE `theaters`")
 	
 	for x in data:
 		cursor.execute("INSERT INTO `theaters` (`name`) VALUES (%s)", x['theaterName'])
